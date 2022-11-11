@@ -12,8 +12,6 @@ const getAllUsers = async () => {
          FROM users;
          `)
          return  rows
-
-
 }
 
 const createUser = async({username, password}) => {
@@ -26,7 +24,7 @@ const createUser = async({username, password}) => {
         `, [username, password]);
       
         
-    return result
+    return rows
     }catch(error) {
         throw error;
     }

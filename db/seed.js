@@ -41,7 +41,7 @@ const rebuildDB = async () => {
     await createTables();
     await createInitialUsers();
    
-    console.log(result)
+    
   } catch (error) {
     console.error(error);
   } finally {
@@ -63,9 +63,10 @@ async function testDB() {
 const createInitialUsers = async() => {
 try {
     console.log("Starting to create users...")
-    const albert = await createUser({username:'albert', password: 'bertie99'})
-    const albertTwo = await createUser({username: 'albert', password: 'imposter_albert'})
+    await createUser({username:'albert', password: 'bertie99'})
+    await createUser({username: 'sandra', password: 'glamgal'})
     console.log(albert)
+    console.log(albertTwo)
     console.log('Finished creating users!')
 }catch(error) {
     console.error('Error creating users!')

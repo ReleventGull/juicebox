@@ -13,20 +13,20 @@ const {
   getPostById,
   getPostsByUser,
   getPostByTagName
-} = require("./index");
+} = require('./index')
 //Grabs client from index.js module exports
 
 //Calls a query which drops(deletes) all tables from out database
 const dropTables = async () => {
   try {
     console.log("Starting to drop tables....");
-    await client.query(`
+   let result =  await client.query(`
     DROP TABLE IF EXISTS post_tags;
     DROP TABLE IF EXISTS tags;
     DROP TABLE IF EXISTS posts;
     DROP TABLE IF EXISTS users;
     `);
-    console.log("Finished dropping tables!");
+    console.log("Finished dropping tables!", result);
   } catch (error) {
     console.error(error);
   }
@@ -118,7 +118,6 @@ const testDB = async() => {
     console.log("Error during testDB");
     throw error;
   }
-  
 }
 
 const createInitialUsers = async () => {

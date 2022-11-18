@@ -185,6 +185,7 @@ const createTags = async (tagList) => {
   const selectValues = tagList.map((_, index) => `$${index + 1}`).join(", ");
 
   console.log("Stupid Insert Values", insertValues);
+  
   try {
     await client.query(
       `

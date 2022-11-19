@@ -1,6 +1,8 @@
 const express = require('express')
 const tagsRouter = express.Router()
 const {getAllTags} = require('../db')
+const { getPostByTagName } = require('../db')
+
 
 
 tagsRouter.use((req, res, next) => {
@@ -12,8 +14,20 @@ tagsRouter.use((req, res, next) => {
 
 tagsRouter.get('/', async (req, res) => {
     const tags = await getAllTags()
-    console.log(tags)
-    res.send("Hello")
+    res.send(tags)
+});
+
+tagsRouter.get('/:tagName/posts', async ( req, res, next) => {
+const { tagName } = req.params
+
+try {
+    const postsByTag = await getPostByTagName(tagName)
+    
+    res.send(postsByTag)
+}catch({name, message}) {
+    next({name, message})
+}
+
 })
 
 

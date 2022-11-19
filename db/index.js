@@ -62,7 +62,7 @@ const createPost = async ({ authorId, title, content, tags = [] }) => {
     `,
       [authorId, title, content]
     );
-    console.log('Post in createPost function', post)
+    
 
     const tagList = await createTags(tags);
     await addTagsToPost(post.id, tagList);
@@ -110,7 +110,7 @@ const updatePost = async (postId, fields = {}) => {
     .map((key, index) => `"${key}"=$${index + 1}`)
     .join(", ");
 
-  console.log(Object.values(fields), "Values here");
+  console.log(Object.values(fields),);
   try {
     if (setString > 0) {
       await client.query(
@@ -122,7 +122,7 @@ const updatePost = async (postId, fields = {}) => {
       `,
         Object.values(fields));
     }
-   
+   console.log(setString)
       if ( tags === undefined ) {
         return await getPostById(postId)
       }
@@ -137,8 +137,8 @@ const updatePost = async (postId, fields = {}) => {
       `, [postId])
       await addTagsToPost(postId, tagList);
 
-      const newPost = await getPostById()
-      console.log('The new Post', newPost)
+      const newPost = await getPostById(postId)
+      console.log("net post in function", newPost)
       return newPost
     
   } catch (error) {
@@ -153,7 +153,7 @@ const getPostsByUserId = async (userId) => {
     SELECT * FROM posts
     WHERE "authorId" = ${userId}
     `);
-    console.log("User posts Here2", rows);
+   
     return rows;
   } catch (error) {}
 };
@@ -165,14 +165,14 @@ const getUserById = async (userId) => {
     SELECT id, username, name, location, active FROM users
     WHERE id = ${userId}
     `);
-    console.log("Rows before", rows);
+   
     if (!rows) {
       return null;
     } else {
       const postResults = await getPostsByUserId(userId);
       rows[0]["posts"] = postResults;
     }
-    return rows;
+    return rows[0];
   } catch (error) {
     console.log("There was an error grabbing user by their ID.");
     throw error;
@@ -187,7 +187,7 @@ const createTags = async (tagList) => {
 
   const selectValues = tagList.map((_, index) => `$${index + 1}`).join(", ");
 
-  console.log("Stupid Insert Values", insertValues);
+ 
   
   try {
     await client.query(
@@ -246,9 +246,7 @@ const addTagsToPost = async (postId, tagList) => {
 const getPostById = async (postId) => {
   //Selecting the post by the ID
   try {
-    const {
-      rows: [post],
-    } = await client.query(
+    const { rows } = await client.query(
       `
     SELECT *
     FROM posts
@@ -256,7 +254,9 @@ const getPostById = async (postId) => {
     `,
       [postId]
     );
-
+      
+   
+    const post = rows[0];
     //SELECTING THE POST TAGS MATCHING THE POST ID (BASICALLY SEARCHING POST BY THE TAGS)
     const { rows: tags } = await client.query(
       `
@@ -268,6 +268,8 @@ const getPostById = async (postId) => {
       [postId]
     );
 
+
+
     //Gets your author
     const {
       rows: [author],
@@ -277,12 +279,13 @@ const getPostById = async (postId) => {
     FROM users
     WHERE id=$1;
     `,
+   
       [post.authorId]
     );
 
     post.tags = tags;
     post.author = author;
-    delete post.authordId;
+    delete post.authorId;
 
     return post;
   } catch (error) {
@@ -298,7 +301,7 @@ const getPostsByUser = async (userId) => {
     FROM posts
     WHERE "authorId"=${userId}
     `);
-    console.log("PostIds", postIds);
+    
     const posts = await Promise.all(
       postIds.map((post) => getPostById(post.id))
     );
@@ -317,6 +320,7 @@ const getPostByTagName = async(tag) => {
     JOIN tags ON tags.id=post_tags."tagId"
     WHERE tags.name=$1
     `, [tag])
+    
 
     return await Promise.all(postIds.map(post => getPostById(post.id)))
   }catch(error) {

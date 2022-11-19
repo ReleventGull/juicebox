@@ -26,7 +26,7 @@ usersRouter.post("/login", async (req, res, next) => {
 
   try {
     const user = await getUserByUserName(username);
-    console.log('user', user)
+    
     if (user && user.password == password) {
       
     const token = jwt.sign({id: user.id, username: user.username}, process.env.JWT_SECRET)
@@ -67,7 +67,7 @@ usersRouter.post('/register', async (req, res, next) => {
       token 
     });
   }catch({name, message}) {
-    console.log("Error bro")
+  
     next({name, message})
   }
 })

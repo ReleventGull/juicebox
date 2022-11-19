@@ -1,87 +1,101 @@
-const express = require('express')
-const postsRouter = express.Router()
-const { requireUser } = require('./utils');
-const {getAllPosts, createPost, updatePost, getPostById} = require('../db')
+const express = require("express");
+const postsRouter = express.Router();
+const { requireUser } = require("./utils");
+const { getAllPosts, createPost, updatePost, getPostById } = require("../db");
 
+postsRouter.use((req, res, next) => {
+  console.log("A request is being made to /posts");
+  next();
+});
+postsRouter.get("/", async (req, res) => {
+  const posts = await getAllPosts();
+  res.send({
+    posts: [posts],
+  });
+});
 
-postsRouter.use((req,res,next) => {
-    console.log("A request is being made to /posts")
-    next()
-})
- postsRouter.get('/', async (req, res) => {
-const posts = await getAllPosts()
-res.send({
-    posts:[posts]
-})
- })
+postsRouter.post("/", requireUser, async (req, res, next) => {
+  const { title, content, tags = "" } = req.body;
+  const tagsArr = tags.trim().split(/\s+/);
+  const postsData = {};
 
-
- postsRouter.post('/', requireUser , async(req, res, next) => {
-    const {title, content, tags = ""} = req.body
-    const tagsArr = tags.trim().split(/\s+/)
-    const postsData = {}
-    console.log("User ID here", req.user[0].id)
-    
-    if(tagsArr.length) {
-        postsData.tags = tagsArr
+  if (tagsArr.length) {
+    postsData.tags = tagsArr;
+  }
+  try {
+    postsData.authorId = req.user.id;
+    postsData.title = title;
+    postsData.content = content;
+    const post = await createPost(postsData);
+    if (post) {
+      res.send(post);
     }
-    try {
-        
-        postsData.authorId = req.user[0].id
-        postsData.title = title
-        postsData.content = content 
-        const post = await createPost(postsData)
-        if (post) {
-            res.send(post)
-        }
+  } catch (error) {
+    throw error;
+  }
+});
+
+postsRouter.patch("/:postId", requireUser, async (req, res, next) => {
+  const { postId } = req.params;
+  const { title, content, tags } = req.body;
+
+  const updateFields = {};
+
+  if (tags && tags.length > 0) {
+    updateFields.tags = tags.trim().split(/\s+/);
+  }
+  if (title) {
+    updateFields.title = title;
+  }
+  if (content) {
+    updateFields.content = content;
+  }
+
+  try {
+    let originalPost = await getPostById(postId);
+
+    if (originalPost.author.id === req.user.id) {
+      const updatedPost = await updatePost(postId, updateFields);
+
+      res.send(updatedPost);
+    } else {
+      next({
+        name: "UnauthorizedUserError",
+        message: "You cannot update a post that isn't yours!",
+      });
     }
-    catch(error) {
-        throw error
+  } catch ({ name, message }) {
+    next({ name, message });
+  }
+});
+
+postsRouter.delete("/:postsId", requireUser, async (req, res, next) => {
+  try {
+    const { postsId } = req.params;
+
+    const post = await getPostById(postsId);
+    console.log("postId to deactive", post.id);
+    if (post && post.author.id === req.user.id) {
+      const updatedPost = await updatePost(post.id, { active: false });
+      res.send({ post: updatedPost });
+    } else {
+      console.log("Can't do that");
+      next(9
+        post
+          ? {
+              name: "UnauthorizatedUserError",
+              message: "You cannot delete a post which is not",
+            }
+          : { name: "PostNotFoundError", message: "That post does not exist" }
+      );
     }
- })
+  } catch ({ name, message }) {
+    next({ name, message });
+  }
+});
+module.exports = postsRouter;
 
- postsRouter.patch('/:postId', requireUser, async (req, res, next) => {
-    const { postId } = req.params
-    const { title, content, tags } = req.body
-
-    const updateFields = {};
-
-    if ( tags && tags.length > 0) {
-        updateFields.tags = tags.trim().split(/\s+/)
-    }
-    if (title) {
-        updateFields.title = title
-    }
-    if (content) {
-        updateFields.content = content
-    }
-
-    try {
-        let originalPost = await getPostById(postId)
-        console.log('Original Post Here', originalPost)
-        console.log('User ID',)
-
-        if (originalPost.author.id === req.user[0].id) {
-            const updatedPost = updatePost(postId, updateFields)
-            console.log('Updated Post here', updatedPost)
-            res.send(updatedPost)
-        } else {
-            next({
-                name: "UnauthorizedUserError",
-                message: "You cannot update a post that isn't yours!"
-            })
-        }
-    }catch({name, message}) {
-        next({name, message})
-    }
- })
-
- module.exports = postsRouter
-
-
-
-
- //curl http://localhost:3000/api/posts -X POST -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhbGJlcnQiLCJpYXQiOjE2Njg4MjIyMDZ9.kmve2zFzJYD09ChYzFwVhMfoCjV9FZ5yWZoV7NZutwY' -H 'Content-Type: application/json' -d '{"title": "I love fish", "content": "how is this?", "tags": " #once #twice    #happy"}'
- //curl http://localhost:3000/api/posts -X POST -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhbGJlcnQiLCJpYXQiOjE2Njg4MjIyMDZ9.kmve2zFzJYD09ChYzFwVhMfoCjV9FZ5yWZoV7NZutwY' -H 'Content-Type: application/json' -d '{"title": "I still do not like tags", "content": "CMON! why do people use them?"}'
+//curl http://localhost:3000/api/posts -X POST -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhbGJlcnQiLCJpYXQiOjE2Njg4MjIyMDZ9.kmve2zFzJYD09ChYzFwVhMfoCjV9FZ5yWZoV7NZutwY' -H 'Content-Type: application/json' -d '{"title": "I love fish", "content": "how is this?", "tags": " #once #twice    #happy"}'
+//curl http://localhost:3000/api/posts -X POST -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhbGJlcnQiLCJpYXQiOjE2Njg4MjIyMDZ9.kmve2zFzJYD09ChYzFwVhMfoCjV9FZ5yWZoV7NZutwY' -H 'Content-Type: application/json' -d '{"title": "I still do not like tags", "content": "CMON! why do people use them?"}'
 //UPDATE
- //curl http://localhost:3000/api/posts/1 -X PATCH -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhbGJlcnQiLCJpYXQiOjE2Njg4MjIyMDZ9.kmve2zFzJYD09ChYzFwVhMfoCjV9FZ5yWZoV7NZutwY' -H 'Content-Type: application/json' -d '{"title": "updating my old stuff", "tags": "#oldisnewagain"}'
+//curl http://localhost:3000/api/posts/1 -X PATCH -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhbGJlcnQiLCJpYXQiOjE2Njg4MjIyMDZ9.kmve2zFzJYD09ChYzFwVhMfoCjV9FZ5yWZoV7NZutwY' -H 'Content-Type: application/json' -d '{"title": "updating my old stuff", "tags": "#oldisnewagain"}'

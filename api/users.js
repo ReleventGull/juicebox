@@ -81,16 +81,3 @@ usersRouter.get("/", async (req, res) => {
 
 module.exports = usersRouter;
 
-// curl http://localhost:3000/api/users/register -H "Content-Type: application/json" -X POST -d '{"username": "syzyagys", "password": "stars", "name": "josiah", "location": "quebec"}'
-
-
-
-// curl http://localhost:3000/api/users/login -H "Content-Type: application/json" -X POST -d '{"username": "albert", "password": "bertie99"}'
-// curl http://localhost:3000/api/posts -X POST -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhbGJlcnQiLCJpYXQiOjE2Njg3NDQ3Nzh9.RDvtwl0b4cPcsSUKWAkRzlDicQ4Bj91Q0DiK_GDY09I'
-//curl http://localhost:3000/api/posts -X POST -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhbGJlcnQiLCJpYXQiOjE2Njg3NDYzNDh9.fbiNhVm1wfVZCLcfecNKZg4nJgvQMz5jAZo6CHNJIes' -H 'Content-Type: application/json' -d '{"title": "test post", "content": "how is this?", "tags": " #once #twice    #happy"}'
-
-//curl http://localhost:3000/api/posts -X POST -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhbGJlcnQiLCJpYXQiOjE2Njg3NDYzNDh9.fbiNhVm1wfVZCLcfecNKZg4nJgvQMz5jAZo6CHNJIes' -H 'Content-Type: application/json' -d '{"title": "test post", "content": "how is this?", "tags": " #once #twice    #happy"}'
-//curl http://localhost:3000/api/posts -X POST -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhbGJlcnQiLCJpYXQiOjE2Njg3NDYzNDh9.fbiNhVm1wfVZCLcfecNKZg4nJgvQMz5jAZo6CHNJIes' -H 'Content-Type: application/json' -d '{"title": "I am quite frustrated"}'
-
-
-

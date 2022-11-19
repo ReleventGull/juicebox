@@ -62,10 +62,11 @@ const createPost = async ({ authorId, title, content, tags = [] }) => {
     `,
       [authorId, title, content]
     );
+    console.log('Post in createPost function', post)
 
     const tagList = await createTags(tags);
-
-    return await addTagsToPost(post.id, tagList);
+    await addTagsToPost(post.id, tagList);
+    return post
   } catch (error) {
     throw error;
   }
@@ -136,7 +137,9 @@ const updatePost = async (postId, fields = {}) => {
       `, [postId])
       await addTagsToPost(postId, tagList);
 
-      return await getPostById(postId)
+      const newPost = await getPostById()
+      console.log('The new Post', newPost)
+      return newPost
     
   } catch (error) {
     console.log("There was an error updating users posts!");
@@ -150,7 +153,7 @@ const getPostsByUserId = async (userId) => {
     SELECT * FROM posts
     WHERE "authorId" = ${userId}
     `);
-    console.log("User posts Here", rows);
+    console.log("User posts Here2", rows);
     return rows;
   } catch (error) {}
 };

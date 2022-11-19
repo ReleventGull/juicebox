@@ -62,8 +62,7 @@ apiRouter.use((error, req, res, next) => {
     })
 })
 
-//curl http://localhost:3000/api -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhbGJlcnQiLCJpYXQiOjE2Njg2NDYwMzV9.wSbWR69evdLz7bCkkR1TRE0Ti0ocmIBxdNzA0cK32-k'
-//curl http://localhost:3000/api -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhbGJlcnQiLCJpYXQiOjE2Njg2NDYwMzV9.wSbWR69evdLz7bCkkR1TRE0Ti0ocmIBxdNzA0cK32-k'
+
 module.exports = apiRouter
 
 

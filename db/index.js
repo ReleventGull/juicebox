@@ -1,10 +1,10 @@
 //Imports the pg module
 const { Client } = require("pg"); //imports the pg module
-
+const {DATABASE_URL = 'postgres://localhost:5432/juicebox-dev'} = process.env
 
 //This gives the DB ame and location of the database
 const client = new Client({
-  connectionString: process.env.DATABASE_URL || 'postgres://localhost:5432/juicebox-dev',
+  connectionString: DATABASE_URL,
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
 });
 

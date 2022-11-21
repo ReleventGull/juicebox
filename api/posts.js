@@ -13,7 +13,7 @@ postsRouter.get('/', async (req, res, next) => {
   try {
     const allPosts = await getAllPosts()
     
-    const posts = allPosts.filter(post => post.active === true)
+    const posts = allPosts.filter(post => post.active || (req.user && post.author.id === req.user.id))
     console.log("ALl posts here bro", posts)
     res.send(posts)
   

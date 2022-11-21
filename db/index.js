@@ -1,7 +1,7 @@
 //Imports the pg module
 const { Client } = require("pg"); //imports the pg module
 
-const { PORT = 3000 } = process.env
+
 //This gives the DB ame and location of the database
 const client = new Client(process.env.DATABASE_URL || 'postgres://localhost:5432/juicebox-dev');
 

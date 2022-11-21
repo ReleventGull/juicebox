@@ -1,15 +1,9 @@
 //Imports the pg module
 const { Client } = require("pg"); //imports the pg module
-const {DATABASE_URL = 'postgres://localhost:5432/juicebox-dev'} = process.env;
 
+const {PORT = 3000 } = process.env
 //This gives the DB ame and location of the database
-
-const client = new Client({
-  connectionString: DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? {rejectUnauthorized false } : undefined
-})
-
-
+const client = new Client(process.env.DATABASE_URL || 'postgres://localhost:5432/juicebox-dev');
 
 const getAllUsers = async () => {
   const { rows } = await client.query(
@@ -31,7 +25,7 @@ const getAllPosts = async () => {
     const posts = await Promise.all(
       postIds.map((post) =>  getPostById(post.id))
     );
-    
+    console.log('All the posts here yo', posts)
     return posts;
   } catch (error) {
     console.log("There was an error getting all the posts");

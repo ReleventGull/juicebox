@@ -22,8 +22,8 @@ const { tagName } = req.params
 
 try {
     const postsByTag = await getPostByTagName(tagName)
-    
-    res.send(postsByTag)
+    const activePost = postsByTag.filter(post => post.active === true)
+    res.send(activePost)
 }catch({name, message}) {
     next({name, message})
 }

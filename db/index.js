@@ -16,14 +16,16 @@ const getAllUsers = async () => {
 };
 
 const getAllPosts = async () => {
+  
   try {
     const { rows: postIds } = await client.query(`
     SELECT id
     FROM posts;
     `);
     const posts = await Promise.all(
-      postIds.map((post) => getPostById(post.id))
+      postIds.map((post) =>  getPostById(post.id))
     );
+    
     return posts;
   } catch (error) {
     console.log("There was an error getting all the posts");
@@ -105,14 +107,12 @@ const updateUser = async (id, fields = {}) => {
 const updatePost = async (postId, fields = {}) => {
   const {tags} = fields //Grab the tags from the fields you want to upset 
   delete fields.tags; //Delete them from the field for whatever reason
-  
   let setString = Object.keys(fields)
     .map((key, index) => `"${key}"=$${index + 1}`)
     .join(", ");
-
-  console.log(Object.values(fields),);
+  
   try {
-    if (setString > 0) {
+    if (setString ) {
       await client.query(
         `
       UPDATE posts
@@ -121,10 +121,11 @@ const updatePost = async (postId, fields = {}) => {
       RETURNING * ;
       `,
         Object.values(fields));
+        
     }
-   console.log(setString)
+   
       if ( tags === undefined ) {
-        return await getPostById(postId)
+        return  await getPostById(postId)
       }
       const tagList = await createTags(tags)
       const tagListIdString = tagList.map(tag => `${tag.id}`).join(', ')
@@ -138,7 +139,6 @@ const updatePost = async (postId, fields = {}) => {
       await addTagsToPost(postId, tagList);
 
       const newPost = await getPostById(postId)
-      console.log("net post in function", newPost)
       return newPost
     
   } catch (error) {
@@ -246,7 +246,8 @@ const addTagsToPost = async (postId, tagList) => {
 const getPostById = async (postId) => {
   //Selecting the post by the ID
   try {
-    const { rows } = await client.query(
+  
+    const { rows: [post] } = await client.query(
       `
     SELECT *
     FROM posts
@@ -255,8 +256,14 @@ const getPostById = async (postId) => {
       [postId]
     );
       
+    if(!post) {
+      throw {
+        name: "PostNotFoundError",
+        message: "Couild not find a post with that postId"
+      }
+    }
    
-    const post = rows[0];
+    
     //SELECTING THE POST TAGS MATCHING THE POST ID (BASICALLY SEARCHING POST BY THE TAGS)
     const { rows: tags } = await client.query(
       `
@@ -267,9 +274,6 @@ const getPostById = async (postId) => {
     `,
       [postId]
     );
-
-
-
     //Gets your author
     const {
       rows: [author],
@@ -279,14 +283,13 @@ const getPostById = async (postId) => {
     FROM users
     WHERE id=$1;
     `,
-   
       [post.authorId]
     );
 
     post.tags = tags;
     post.author = author;
     delete post.authorId;
-
+    
     return post;
   } catch (error) {
     console.log("There was an error fetching the post by");

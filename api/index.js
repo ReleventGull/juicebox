@@ -59,3 +59,4 @@ apiRouter.use((error, req, res, next) => {
 module.exports = apiRouter
 
 
+//login curl http://localhost:3000/api/users/login -H "Content-Type: application/json" -X POST -d '{"username": "albert", "password": "bertie99"}'

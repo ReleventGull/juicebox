@@ -14,7 +14,7 @@ postsRouter.get('/', async (req, res, next) => {
     const allPosts = await getAllPosts()
     
     const posts = allPosts.filter(post => post.active || (req.user && post.author.id === req.user.id))
-    console.log("ALl posts here bro", posts)
+    console.log("ALl posts here ", posts)
     res.send(posts)
   
   }catch({name,error}) {
